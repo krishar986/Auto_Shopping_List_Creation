@@ -1,0 +1,1 @@
+Item Name	Item Quantity	Available Servings	Treshold	Preferred Shop (Url+css_selector+store)
