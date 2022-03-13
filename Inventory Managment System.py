@@ -1,7 +1,62 @@
 Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to get a list of all items you are running low on, enter 3 to update your inventory after coming home from shopping, enter 4 to add to you inventory: ")
 Inventory = open("Inventory_File.txt","a+")
 
+def Adding_Items():
 
+
+
+def Calculating_Available_Servings(amount_consumed, Quantity):
+
+
+
+
+def Remove_Item(item_name):
+
+
+
+
+
+
+def Quantity_Calculation(Available_serving, Maximum_servings):
+
+
+
+
+def Cheapest_Price_Calculation(list_of_all_prices):
+
+
+
+
+def Webscraping_Prices(css_selector_of_price, store, store_url):
+
+
+
+def Checking_if_Available_servings_below_Threshold():
+
+
+
+
+    
+
+
+
+def Print_List(item_name, store_name, cheapest_price, quantity_needed):
+
+
+
+
+
+
+def Updating_Inventory(Amount_consumed, item_name):
+
+
+
+#New Line
+
+               
+
+
+    
 if Next_Step == "1":
     Breakfast = input("What did you eat for breakfast (enter full item name): ")
     Breakfast_Quantity = input("What type of breakfast did you eat a large(l), medium(m), small(s): ")
