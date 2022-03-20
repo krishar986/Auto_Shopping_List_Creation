@@ -1,11 +1,94 @@
+from selenium import webdriver
+import requests
 Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to get a list of all items you are running low on, enter 3 to update your inventory after coming home from shopping, enter 4 to add to you inventory: ")
-Inventory = open("Inventory_File.txt","a+")
+#Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
+Inventory = open("Inventory_File.csv","a+")
 
+dictionary_for_items_and_prices = {}
+
+
+
+
+#this function will add items to the Inventory file, if the item exists that we will print a message that the item will already
+def Validating_Numeric_Inputs(inputs):
+    try:
+        inputs = int(inputs)
+    except ValueError:
+        inputs = input("Please enter Natural Number: ")
+        Validating_Numeric_Inputs(inputs)        
+    if inputs < 0:
+        inputs = input("Please enter Natural Numbers: ")
+        Validating_Numeric_Inputs(inputs)
+    inputs = str(inputs)
+    return inputs
+
+
+
+
+##    while inputs.isnumeric() != True and inputs > 0 and type(inputs) == int:
+##        inputs = input("Please enter only Natural Number: ")
+##    return inputs
+
+
+
+def Open_Url(url):
+    r = requests.get(url)
+    while r.status_code == 404:
+        url = input("Please enter a valid url: ")
+    return url
+
+
+def Go_to_Google_Maps(input_):
+    Chrome = webdriver.Chrome()
+    error_message = Chrome.find_elements("<div jstcache="921" class="f4O7db-bSF9Gf-LaJeF-title"> Google Maps can't find <i jstcache="922">"+input_+" jn</i> </div>")
+    if len(error_message) == 0:
+        return True
+    else:
+        print("This place doesn't exist")
+        return False
+    
+
+    
+
+    
+#Going to write using selenium
+def searching_for_item(list_inputs,item_names):
+   for i in Inventory:
+        list_for_item_values=i.split(",")
+        if list_for_item_values[0] == item_name:
+            is_repeats = True
+            for value in list_inputs:
+                if value in list_for_item_values:
+                    pass
+                else:
+                    is_repeats = False
+                    print("Please go to Update to change your inventory: ")
+                    break
+            if is_repeats == True:
+                print("Item already exists")
+    return True
 def Adding_Items():
+#Input, Validate the Inputs, and Check if the Info repeats
+
+        
+        New_Item_Input = input("Enter the item name (please enter the full name of the item so you can exact lists when you are shopping): ")
+        
+        Quantity_Input = input("How many boxes or bags of this do you have: ")
+        
+        Serving_Input = input("How many available servings do you have, please enter in terms of your previous answer: ")
+
+        Threshold_Input = input("How many Servings do you have left before you start to run out: ")
+
+        Shop_Input = input("Please enter which shop you prefer to buy this item: ")
+        
 
 
 
-def Calculating_Available_Servings(amount_consumed, Quantity):
+
+def Calculating_Available_Servings(amount_consumed, Quantity, servings_per_unit):
+    total_quantity = Quantity * servings_per_unit
+    amount_left = total_quantity - amount_consumed
+    return amount_left
 
 
 
@@ -22,12 +105,24 @@ def Quantity_Calculation(Available_serving, Maximum_servings):
 
 
 
-def Cheapest_Price_Calculation(list_of_all_prices):
+
+
+
+def Cheapest_Price_Calculation(dictionary_of_all_item_and_prices):
+
+list_of_all_prices = dictionary_of_all_prices.keys()
+cheapest_price = list_of_all_prices.sort()[0]
+return cheapest_price
+
+
 
 
 
 
 def Webscraping_Prices(css_selector_of_price, store, store_url):
+
+
+
 
 
 
@@ -48,38 +143,3 @@ def Print_List(item_name, store_name, cheapest_price, quantity_needed):
 
 
 def Updating_Inventory(Amount_consumed, item_name):
-
-
-
-#New Line
-
-               
-
-
-    
-if Next_Step == "1":
-    Breakfast = input("What did you eat for breakfast (enter full item name): ")
-    Breakfast_Quantity = input("What type of breakfast did you eat a large(l), medium(m), small(s): ")
-    if Breakfast_Quantity == "l":
-        Breakfast_Quantity = 1.5
-    if Breakfast_Quantity == "m":
-        Breakfast_Quantity = 1
-    if Breakfast_Quantity == "s":
-        Breakfast_Quantity = 0.5
-    
-if Next_Step == "2":
-    pass
-if Next_Step == "3":
-    pass
-if Next_Step == "4":
-    New_Item_Input = input("Enter the item name (please enter the full name of the item so you can exact lists when you are shopping): ")
-    Inventory.write(New_Item_Input+", ")
-    Quantity_Input = input("How many boxes or bags of this do you have: ")
-    Inventory.write(Quantity_Input+", ")
-    Serving_Input = input("How many available servings do you have, please enter in terms of your previous answer: ")
-    Inventory.write(Serving_Input+", ")
-    Threshold_Input = input("How many Servings do you have left before you start to run out: ")
-    Inventory.write(Threshold_Input+", ")
-    Shop_Input = input("Please enter which shop you prefer to buy this item: ")
-    Inventory.write(Shop_Input+"\n")
-    Inventory.flush()
