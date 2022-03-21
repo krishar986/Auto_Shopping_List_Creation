@@ -39,13 +39,17 @@ def Open_Url(url):
 
 
 def Go_to_Google_Maps(input_):
-    Chrome = webdriver.Chrome()
-    error_message = Chrome.find_elements("<div jstcache="921" class="f4O7db-bSF9Gf-LaJeF-title"> Google Maps can't find <i jstcache="922">"+input_+" jn</i> </div>")
-    if len(error_message) == 0:
-        return True
+    Chrome =webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Webscraping Exercises/chromedriver")
+    Chrome.get("https://www.google.com/maps/search/"+input_)
+    error_message = Chrome.find_elements_by_id("pane")
+    error_string = "Google Maps can't find "+input_
+    if error_string not in error_message[0].text:
+        return input_
     else:
-        print("This place doesn't exist")
-        return False
+        input_ = input("Please enter a store that exists: ")
+        input_ = Go_to_Google_Maps(input_)
+        return input_
+    
     
 
     
