@@ -2,9 +2,10 @@ from selenium import webdriver
 import requests
 Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to get a list of all items you are running low on, enter 3 to update your inventory after coming home from shopping, enter 4 to add to you inventory: ")
 #Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
-Inventory = open("Inventory_File.csv","a+")
+Inventory = open("Inventory_File.csv","w+")
 
 dictionary_for_items_and_prices = {}
+all_lines = Inventory.readlines()
 
 
 
@@ -98,7 +99,10 @@ def Calculating_Available_Servings(amount_consumed, Quantity, servings_per_unit)
 
 
 def Remove_Item(item_name):
-
+    for i in all_lines:
+        list_item_info= i.split(",")
+        if list_of_item_info[0] == item_name:
+            all_lines.remove(i)
 
 
 
