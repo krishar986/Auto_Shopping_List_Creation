@@ -39,6 +39,9 @@ def Open_Url(url):
     return url
 
 
+
+
+
 def Go_to_Google_Maps(input_):
     Chrome =webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Webscraping Exercises/chromedriver")
     Chrome.get("https://www.google.com/maps/search/"+input_)
@@ -72,6 +75,9 @@ def searching_for_item(list_inputs,item_names):
             if is_repeats == True:
                 print("Item already exists")
     return True
+
+
+
 def Adding_Items():
 #Input, Validate the Inputs, and Check if the Info repeats
 
@@ -79,16 +85,25 @@ def Adding_Items():
         New_Item_Input = input("Enter the item name (please enter the full name of the item so you can exact lists when you are shopping): ")
         
         Quantity_Input = input("How many boxes or bags of this do you have: ")
+        Quantity_Input = Validating_Numeric_Inputs(Quantity_Input)
         
         Serving_Input = input("How many available servings do you have, please enter in terms of your previous answer: ")
-
-        Threshold_Input = input("How many Servings do you have left before you start to run out: ")
-
-        Shop_Input = input("Please enter which shop you prefer to buy this item: ")
+        Serving_Input = Validating_Numeric_Inputs(Serving_Input)
         
+        Threshold_Input = input("How many Servings do you have left before you start to run out: ")
+        Threshold_Input = Validating_Numeric_Inputs(Threshold_Input)
 
+        Max_Quantity = input("Please enter Max Quantity: ")
+        Max_Quantity = Validating_Numeric_Inputs(Max_Quantity)
+        
+        Shop_Input = input("Please enter which shop you prefer to buy this item: ")
+        Shop_Input = Go_to_Google_Maps(Shop_Input)
 
-
+        asking_if_
+        while 
+        Url_Input = input("Please enter the url 
+        line = ",".join([New_Item_Input, Quantity_Input, Serving_Input, Threshold_Input, Max_Quantity, Shop_Input])
+        all_lines.append(line)
 
 def Calculating_Available_Servings(amount_consumed, Quantity, servings_per_unit):
     total_quantity = Quantity * servings_per_unit
