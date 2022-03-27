@@ -33,9 +33,15 @@ def Validating_Numeric_Inputs(inputs):
 
 
 def Open_Url(url):
-    r = requests.get(url)
-    while r.status_code == 404:
+    try:
+        r = requests.get(url)
+    except requests.exceptions.MissingSchema:
         url = input("Please enter a valid url: ")
+        url = Open_Url(url)        
+        if r.status_code == 404:
+            url = input("Please enter a valid url: ")
+            url = Open_Url(url)
+        
     return url
 
 
@@ -67,14 +73,16 @@ def searching_for_item(list_inputs,item_names):
             is_repeats = True
             for value in list_inputs:
                 if value in list_for_item_values:
+                    return 1
                     pass
                 else:
                     is_repeats = False
                     print("Please go to Update to change your inventory: ")
+                    return 2
                     break
             if is_repeats == True:
                 print("Item already exists")
-    return True
+                return 3
 
 
 
@@ -98,10 +106,12 @@ def Adding_Items():
         
         Shop_Input = input("Please enter which shop you prefer to buy this item: ")
         Shop_Input = Go_to_Google_Maps(Shop_Input)
-
+        # 3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
         asking_if_
         while 
         Url_Input = input("Please enter the url 
+
+        
         line = ",".join([New_Item_Input, Quantity_Input, Serving_Input, Threshold_Input, Max_Quantity, Shop_Input])
         all_lines.append(line)
 
@@ -165,4 +175,69 @@ def Print_List(item_name, store_name, cheapest_price, quantity_needed):
 
 
 
-def Updating_Inventory(Amount_consumed, item_name):
+
+
+
+
+def Updating_Inventory_2():
+    for i in all_lines:
+        print(i)
+    item_name = input("Please enter the name of the item you want to update: ")
+    result = None
+    for i in all_lines:
+        list_of_values = i.split(",")
+        if item_name in list_of_values[0]:
+            result = i
+    if result != None:
+        print(result)
+        index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url: ")
+        Validating_Numeric_Inputs(index_input)
+        index_input = int(index_input)
+        result_list = result.split(",")
+        while index_input > 8:
+            index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url: ")
+            Validating_Numeric_Inputs(index_input)
+            index_input = int(index_input)
+        if index_input < 8:
+            current_value = result_list[index_input - 1]
+        if index_input == 8:
+            current_value = input("Please enter the current value of the url: ")
+            while current_value not in result:
+                current_value = input("Please enter the current value of the url: ")
+                Open_Url(current_value)
+        new_value_input = input("Please enter what you want to change the value to: ")
+        updated_result = result.replace(current_value,new_value_input)
+        all_lines[all_lines.index(result)] = updated_result
+    else:
+        print("None")
+
+        
+##def Updating_Inventory_2():
+##
+##
+##"""
+##Identify which line's value needs to be update
+##Identify what value of the line need to be updated
+##"""
+##    all_lines = Inventory.readlines()
+##    for i in all_lines:
+##        print(i)
+##    item_name = input("Please enter the name of the item you want to update: ")
+##    for i in all_lines:
+##        list_of_values = i.split(",")
+##        if list_of_values[0] == item_name:
+##            current_value = input("Please enter the the current value of the value you want to change: ")
+##            
+##            if current_value in list_of_values:
+##                if type(current_value) == int:
+##                    current_value = Validating_Numeric_Inputs(current_value)
+##                    
+##                new_value = input("Please enter what you want to replace the value with: ")
+##                i.replace(current_value, new_value)
+##            else:
+##                current_value = input("Please enter something in the list: ")
+##                Updating_Inventory_2()
+##        else:
+##            item_name = input("Please enter an item name existing in the Inventory: ")
+##                
+##                
