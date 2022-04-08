@@ -4,12 +4,22 @@ Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to 
 #Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
 Inventory = open("Inventory_File.csv","w+")
 
+Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Webscraping Exercises/chromedriver")
+
 dictionary_for_items_and_prices = {}
 all_lines = Inventory.readlines()
 
 
+def Checking_if_Css_Selector_Exists(url,css_selector):
+    Chrome.get(url)
+    if Chrome.isDisplayed(css_selector) == False:
+        asking_for_url_or_css_selector = input("Do you want to change the css selector(enter 'c') or the url(enter 'u'): ")
+        if asking_for_url_or_css_selector == "c":
+            css_selector = input("Please enter a new css_selector: ")
+            Checking_if_Css_Selector_Exists(url, css_selector)
 
-
+    if Chrome.isDisplayed(css_selector) == True:
+        return css_selector 
 #this function will add items to the Inventory file, if the item exists that we will print a message that the item will already
 def Validating_Numeric_Inputs(inputs):
     try:
@@ -49,7 +59,7 @@ def Open_Url(url):
 
 
 def Go_to_Google_Maps(input_):
-    Chrome =webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Webscraping Exercises/chromedriver")
+    
     Chrome.get("https://www.google.com/maps/search/"+input_)
     error_message = Chrome.find_elements_by_id("pane")
     error_string = "Google Maps can't find "+input_
@@ -103,16 +113,28 @@ def Adding_Items():
 
         Max_Quantity = input("Please enter Max Quantity: ")
         Max_Quantity = Validating_Numeric_Inputs(Max_Quantity)
-        
-        Shop_Input = input("Please enter which shop you prefer to buy this item: ")
-        Shop_Input = Go_to_Google_Maps(Shop_Input)
-        # 3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
-        asking_if_
-        while 
-        Url_Input = input("Please enter the url 
 
-        
-        line = ",".join([New_Item_Input, Quantity_Input, Serving_Input, Threshold_Input, Max_Quantity, Shop_Input])
+        line = ",".join([New_Item_Input, Quantity_Input, Serving_Input, Threshold_Input, Max_Quantity])
+        line.split(",")
+        Shop_Input = input("Please enter which shop you prefer to buy this item(enter n if there is none): ")
+        if Shop_Input != "n":
+            Shop_Input = Go_to_Google_Maps(Shop_Input)
+            
+            line.append(Shop_Input)
+        else:
+            
+        # 3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
+            while asking_for_inputs == y:
+                Url_Input = input("Please enter the url: ")
+                Url_Input = Open_Url(Url_Input)
+                Store_Name_Input = input("Please enter the store name: ")
+                Store_Name_Input = Go_to_Google_Maps(Store_Name_Input)
+                Css_selector_Input = input("Please enter css_selector: ")
+                Css_selector_Input = Checking_if_Css_Selector_Exists(Css_selector_Input)
+                Store_Info = ",".join([Url_Input, Store_Name_Input, Css_selector_Input])
+                line.append(Store_Info)
+                asking_for_inputs = input("Do you want to enter store info(y for yes, anything else for no): ")
+        line = ",".join(line)
         all_lines.append(line)
 
 def Calculating_Available_Servings(amount_consumed, Quantity, servings_per_unit):
@@ -132,10 +154,11 @@ def Remove_Item(item_name):
 
 
 
-
-def Quantity_Calculation(Available_serving, Maximum_servings):
-
-
+#I want this function to calculate the available Quantity
+def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_per_unit):
+    quantity_in_servings = Maximum_servings - Available_servings
+    Quantity = Available_serving/servings_per_unit
+    return Quantity
 
 
 
@@ -152,17 +175,25 @@ return cheapest_price
 
 
 
-def Webscraping_Prices(css_selector_of_price, store, store_url):
+def Webscraping_Prices(css_selector_of_price, store, target_store_url):
+    Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
+    Chrome.get(target_store_url)
+    time.sleep(10)
+    price = Chrome.find_element_by_css_selector(css_selector_of_price).text
+    regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
+    y = regex_to_remove_currency.search(price)
+    print(y.group())
+    
 
 
 
 
 
-
-def Checking_if_Available_servings_below_Threshold():
-
-
-
+def Checking_if_Available_servings_below_Threshold(item_name):
+    for i in all_line:
+        list_of_values = i.split(",")
+        if list_of_values[0] == item_name:
+            
 
     
 
@@ -180,64 +211,39 @@ def Print_List(item_name, store_name, cheapest_price, quantity_needed):
 
 
 def Updating_Inventory_2():
-    for i in all_lines:
-        print(i)
-    item_name = input("Please enter the name of the item you want to update: ")
-    result = None
-    for i in all_lines:
-        list_of_values = i.split(",")
-        if item_name in list_of_values[0]:
-            result = i
-    if result != None:
-        print(result)
-        index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url: ")
-        Validating_Numeric_Inputs(index_input)
-        index_input = int(index_input)
-        result_list = result.split(",")
-        while index_input > 8:
+    add_or_update = input("Do yo want to add items(enter 'a') to your inventory or update(enter 'u') your inventory: ")
+    if add_or_update == "u":
+        for i in all_lines:
+            print(i)
+        item_name = input("Please enter the name of the item you want to update: ")
+        result = None
+        for i in all_lines:
+            list_of_values = i.split(",")
+            if item_name in list_of_values[0]:
+                result = i
+        if result != None:
+            print(result)
             index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url: ")
             Validating_Numeric_Inputs(index_input)
             index_input = int(index_input)
-        if index_input < 8:
-            current_value = result_list[index_input - 1]
-        if index_input == 8:
-            current_value = input("Please enter the current value of the url: ")
-            while current_value not in result:
+            result_list = result.split(",")
+            while index_input > 8:
+                index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url: ")
+                Validating_Numeric_Inputs(index_input)
+                index_input = int(index_input)
+            if index_input < 8:
+                current_value = result_list[index_input - 1]
+            elif index_input == 8:
+            #TODO:Handle urls appending and updating
                 current_value = input("Please enter the current value of the url: ")
-                Open_Url(current_value)
-        new_value_input = input("Please enter what you want to change the value to: ")
-        updated_result = result.replace(current_value,new_value_input)
-        all_lines[all_lines.index(result)] = updated_result
-    else:
-        print("None")
-
-        
-##def Updating_Inventory_2():
-##
-##
-##"""
-##Identify which line's value needs to be update
-##Identify what value of the line need to be updated
-##"""
-##    all_lines = Inventory.readlines()
-##    for i in all_lines:
-##        print(i)
-##    item_name = input("Please enter the name of the item you want to update: ")
-##    for i in all_lines:
-##        list_of_values = i.split(",")
-##        if list_of_values[0] == item_name:
-##            current_value = input("Please enter the the current value of the value you want to change: ")
-##            
-##            if current_value in list_of_values:
-##                if type(current_value) == int:
-##                    current_value = Validating_Numeric_Inputs(current_value)
-##                    
-##                new_value = input("Please enter what you want to replace the value with: ")
-##                i.replace(current_value, new_value)
-##            else:
-##                current_value = input("Please enter something in the list: ")
-##                Updating_Inventory_2()
-##        else:
-##            item_name = input("Please enter an item name existing in the Inventory: ")
-##                
-##                
+                while current_value not in result:
+                    current_value = input("Please enter the current value of the url: ")
+                    Open_Url(current_value)
+            new_value_input = input("Please enter what you want to change the value to: ")
+            updated_result = result.replace(current_value,new_value_input)
+            all_lines[all_lines.index(result)] = updated_result
+        else:
+            print("None")
+    elif add_or_update == "a":
+        Adding_items()
+                  
