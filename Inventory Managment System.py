@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 import requests
 Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to get a list of all items you are running low on, enter 3 to update your inventory after coming home from shopping, enter 4 to add to you inventory: ")
 #Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
@@ -12,15 +13,15 @@ all_lines = Inventory.readlines()
 
 def Checking_if_Css_Selector_Exists(url,css_selector):
     Chrome.get(url)
-    if Chrome.isDisplayed(css_selector) == False:
-        asking_for_url_or_css_selector = input("Do you want to change the css selector(enter 'c') or the url(enter 'u'): ")
-        if asking_for_url_or_css_selector == "c":
-            css_selector = input("Please enter a new css_selector: ")
-            Checking_if_Css_Selector_Exists(url, css_selector)
+    try:
+        elements = Chrome.find_element_by_css_selector(css_selector)
+    except Exception:
+        css_selector = input("Please enter a new css_selector: ")
+        Checking_if_Css_Selector_Exists(url, css_selector)
+    else:
+        return css_selector
 
-    if Chrome.isDisplayed(css_selector) == True:
-        return css_selector 
-#this function will add items to the Inventory file, if the item exists that we will print a message that the item will already
+#this function will validate numeric inputs
 def Validating_Numeric_Inputs(inputs):
     try:
         inputs = int(inputs)
