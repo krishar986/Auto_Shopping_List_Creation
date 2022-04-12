@@ -117,26 +117,34 @@ def Adding_Items():
         Max_Quantity = input("Please enter Max Quantity: ")
         Max_Quantity = Validating_Numeric_Inputs(Max_Quantity)
 
-        line = [New_Item_Input, Quantity_Input, Serving_Input, Threshold_Input, Max_Quantity]
+        Servings_per_Unit = input("Please enter how many servings are in one unit of this item: ")
+        Servings_per_Unit = Validating_Numeric_Inputs(Servings_per_Unit)
+        
+        line = [New_Item_Input, Quantity_Input, Serving_Input, Threshold_Input, Max_Quantity, ]
 
         Shop_Input = input("Please enter which shop you prefer to buy this item(enter n if there is none): ")
         if Shop_Input != "n":
             Shop_Input = Go_to_Google_Maps(Shop_Input)
             
-            line.append(Shop_Input)
+            Url_Input = input("Please enter the url for this item at that store: ")
+            Url_Input = Open_Url(Url_Input)
+            Css_Selector_Input = input("Please enter the css_selector for this item price at that url: ")
+            line.append(Shop_Input,Url_Input,Css_Selector_Input)
         else:
-            
+            yes = True
         # 3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
-            while asking_for_inputs == y:
+            while yes == True:
                 Url_Input = input("Please enter the url: ")
                 Url_Input = Open_Url(Url_Input)
                 Store_Name_Input = input("Please enter the store name: ")
                 Store_Name_Input = Go_to_Google_Maps(Store_Name_Input)
                 Css_selector_Input = input("Please enter css_selector: ")
                 Css_selector_Input = Checking_if_Css_Selector_Exists(Css_selector_Input)
-                Store_Info = ",".join([Url_Input, Store_Name_Input, Css_selector_Input])
+                Store_Info = ";".join([Url_Input, Store_Name_Input, Css_selector_Input])
                 line.append(Store_Info)
                 asking_for_inputs = input("Do you want to enter store info(y for yes, anything else for no): ")
+                if asking_for_inputs != "y":
+                    yes = False
         str_line = ",".join(line)
         all_lines.append(str_line)
 
@@ -145,7 +153,7 @@ def Calculating_Available_Servings(amount_consumed, Quantity, servings_per_unit)
     amount_left = total_quantity - amount_consumed
     return amount_left
 
-
+ 
 
 
 def Remove_Item(item_name):
@@ -178,9 +186,9 @@ return cheapest_price
 
 
 
-def Webscraping_Prices(css_selector_of_price, store, target_store_url):
+def Webscraping_Prices(css_selector_of_price, store_url):
     Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
-    Chrome.get(target_store_url)
+    Chrome.get(store_url)
     time.sleep(10)
     price = Chrome.find_element_by_css_selector(css_selector_of_price).text
     regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
@@ -192,11 +200,10 @@ def Webscraping_Prices(css_selector_of_price, store, target_store_url):
 
 
 
-def Checking_if_Available_servings_below_Threshold(item_name):
-    for i in all_line:
-        list_of_values = i.split(",")
-        if list_of_values[0] == item_name:
-            
+def Checking_if_Available_servings_below_Threshold():
+
+        
+                
 
     
 
@@ -282,3 +289,23 @@ def Updating_Inventory_2():
         line.append(Store_Info)
         all_lines.append(line)
 
+
+
+
+
+
+add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
+while add_item_or_update_or_print_list == "a":
+##    Adding_Items()
+##    all_lines = "\n".join(all_lines)
+##    Inventory.write(all_lines)
+    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
+
+while add_item_or_update_or_print_list == "u":
+##    Update_Inventory_2()
+##    all_lines = "\n".join(all_lines)
+##    Inventory.write(all_lines)
+    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
+
+while add_item_or_update_or_print_list == "p":
+    
