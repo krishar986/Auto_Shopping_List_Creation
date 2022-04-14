@@ -4,7 +4,7 @@ import smtplib
 import requests
 Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to get a list of all items you are running low on, enter 3 to update your inventory after coming home from shopping, enter 4 to add to you inventory: ")
 #Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
-Inventory = open("Inventory_File.csv","w+")
+Inventory = open("Inventory_File.csv","r")
 
 Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Webscraping Exercises/chromedriver")
 dictionary_with_all_needed_item_values = {}
@@ -21,20 +21,6 @@ def Checking_if_Css_Selector_Exists(url,css_selector):
         Checking_if_Css_Selector_Exists(url, css_selector)
     else:
         return css_selector
-
-#this function will validate numeric inputs
-def Validating_Numeric_Inputs(inputs):
-    try:
-        inputs = int(inputs)
-    except ValueError:
-        inputs = input("Please enter Natural Number: ")
-        Validating_Numeric_Inputs(inputs)        
-    if inputs < 0:
-        inputs = input("Please enter Natural Numbers: ")
-        Validating_Numeric_Inputs(inputs)
-    inputs = str(inputs)
-    return inputs
-
 
 
 
@@ -170,67 +156,19 @@ def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_
     quantity_in_servings = Maximum_servings - Available_servings
     Quantity = Available_serving/servings_per_unit
     return Quantity
-
-
-
-
-
-def Cheapest_Price_Calculation(dictionary_of_all_item_and_prices):
-
-list_of_all_prices = dictionary_of_all_prices.keys()
-cheapest_price = list_of_all_prices.sort()[0]
-return cheapest_price
-
-
-
-
-
-
-def Webscraping_Prices(css_selector_of_price, store_url):
-    Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
-    Chrome.get(store_url)
-    time.sleep(10)
-    price = Chrome.find_element_by_css_selector(css_selector_of_price).text
-    regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
-    y = regex_to_remove_currency.search(price)
-    print(y.group())
     
 
 
 
 
 
-def Checking_if_Available_servings_below_Threshold():
-
-        
-                
-
-    
-
-
-
-def Print_List(dictionary_with_all_needed_item_values):
-    list_of_lines = []
-    email = smtplib.SMTP("smtp.gmail.com", 587)
-    email.ehlo()
-    email.starttls()
-    email.login("tstmando@gmail.com","Mando@123")
-    for key in dictionary_with_all_needed_item_values.keys():
-        for item in dictionary_with_all_needed_item_values.values():
-            item = item.split(",")
-            line = item[0]+"\t"+key+"\t"+item[2]+"\t"+item[1]
-            list_of_lines.append(line)
-
-    list_of_lines = "\n".join(list_of_lines)         
-    email.sendmail("tstmando@gmail.com", "rajivsharma76@gmail.com","Subject:Grocery List For"+datetime.datetime.now().strftime("%x")+"\n"+list_of_lines)
-    email.quit()
 
 
 
 
 
 
-
+#This function will give the user the ability to update the inventory
 
 def Updating_Inventory_2():
     add_or_update = input("Do yo want to add items(enter 'a') to your inventory or update(enter 'u') your inventory, or if you want to change the url info then enter url: ")
@@ -294,18 +232,137 @@ def Updating_Inventory_2():
 
 
 
-add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
-while add_item_or_update_or_print_list == "a":
-##    Adding_Items()
-##    all_lines = "\n".join(all_lines)
-##    Inventory.write(all_lines)
-    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
+def Print_List():
+    list_of_lines = []
+    email = smtplib.SMTP("smtp.gmail.com", 587)
+    email.ehlo()
+    email.starttls()
+    email.login("tstmando@gmail.com","Mando@123")
+    for key in dictionary_with_all_needed_item_values.keys():
+        for item in dictionary_with_all_needed_item_values.values():
+            item = item.split(",")
+            line = item[0]+"\t"+key+"\t"+item[2]+"\t"+item[1]
+            list_of_lines.append(line)
 
-while add_item_or_update_or_print_list == "u":
-##    Update_Inventory_2()
-##    all_lines = "\n".join(all_lines)
-##    Inventory.write(all_lines)
-    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
+    list_of_lines = "\n".join(list_of_lines)         
+    email.sendmail("tstmando@gmail.com", "rajivsharma76@gmail.com","Subject:Grocery List For"+datetime.datetime.now().strftime("%x")+"\n"+list_of_lines)
+    email.quit()
 
-while add_item_or_update_or_print_list == "p":
     
+def Validating_Numeric_Inputs(inputs):
+    try:
+        inputs = int(inputs)
+    except ValueError:
+        inputs = input("Please enter Natural Number: ")
+        Validating_Numeric_Inputs(inputs)        
+    if inputs < 0:
+        inputs = input("Please enter Natural Numbers: ")
+        Validating_Numeric_Inputs(inputs)
+    inputs = str(inputs)
+    return inputs
+
+
+
+
+
+def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_per_unit):
+    quantity_in_servings = Maximum_servings - Available_serving
+    Quantity = Available_serving/servings_per_unit
+    return Quantity
+
+
+
+def Webscraping_Prices(css_selector_fo_price, store_url):
+    Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
+    Chrome.get(store_url)
+    price = Chrome.find_element_by_css_selector(css_selector_fo_price).text
+    regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
+    y = regex_to_remove_currency.search(price)
+    Chrome.close()
+    return y.group()
+
+
+
+
+
+
+
+
+add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'),update available servings(enter 'ua'), or print list('p'): ")
+
+while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_list=="u"or add_item_or_update_or_print_list == "p":
+
+    if add_item_or_update_or_print_list == "a":
+        Adding_Items()
+        all_lines = "\n".join(all_lines)
+        Inventory.write(all_lines)
+
+
+
+    elif add_item_or_update_or_print_list == "u":
+        Update_Inventory_2()
+        all_lines = "\n".join(all_lines)
+        Inventory.write(all_lines)
+
+
+
+
+    elif add_item_or_update_or_print_list == "p":
+        list_of_prices = []
+        dictionary_of_prices_and_stores = {}
+
+
+        for item in all_lines:
+            item = item.split(",")
+            index = 6
+            url_index = 7
+            url = item[url_index].split(";")
+            last_index = item.index(item[-1])
+
+            if int(item[2]) <= int(item[3]):
+                if item[index] == "n":
+                    while url_index <= last_index:
+                        url = item[url_index].split(";")
+                        price = Webscraping_Prices(url[2],url[0])
+                        list_of_prices.append(float(price))
+                        dictionary_of_prices_and_stores[url[1]] = price
+                        url_index += 1
+
+
+
+
+
+                    list_of_prices.sort()
+                    cheapest_price = list_of_prices[0]
+                    stores = list(dictionary_of_prices_and_stores.keys())
+                    prices = list(dictionary_of_prices_and_stores.values())
+                    price_index= prices.index(str(cheapest_price))
+
+                    store_with_cheapest_price = stores[price_index]
+                    available_quantity = Available_Quantity_Calculation(int(item[2]),int(item[4]),int(item[5]))
+
+                    quantity_needed = int(item[4])-available_quantity
+
+                    dictionary_with_all_needed_item_values[store_with_cheapest_price] = item[0]+","+str(quantity_needed)+","+str(cheapest_price)
+                    
+                elif item[index] != "n":
+                    price = Webscraping_Prices(item[8],item[6])
+
+                    available_quantity = Available_Quantity_Calculation(int(item[2]),int(item[4]),int(item[5]))
+
+                    quantity_needed = int(item[4])-available_quantity
+                    dictionary_with_all_needed_item_values[item[6]] = item[0]+","+str(quantity_needed)+","+str(price)
+
+    elif add_item_or_update_or_print_list == "ua":
+        for item in all_lines:
+            updated_item = item.split(",")
+            servings_consumed = input("Please enter how of "+updated_item[0]+" have you consumed: ")
+            updated_item[2] = int(updated_item[2]) - int(servings_consumed)
+            updated_item = ",".join(updated_item)
+            all_lines[all_lines.index(item)] = updated_item
+    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
+
+
+
+Print_List()
+
