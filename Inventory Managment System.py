@@ -2,11 +2,11 @@ from selenium import webdriver
 import datetime
 import smtplib
 import requests
-Next_Step = input("Please enter 1 if you want to enter daily intake, enter 2 to get a list of all items you are running low on, enter 3 to update your inventory after coming home from shopping, enter 4 to add to you inventory: ")
+import re
 #Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
 Inventory = open("Inventory_File.csv","r")
 
-Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Webscraping Exercises/chromedriver")
+Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
 dictionary_with_all_needed_item_values = {}
 dictionary_for_items_and_prices = {}
 all_lines = Inventory.readlines()
@@ -154,7 +154,7 @@ def Remove_Item(item_name):
 #I want this function to calculate the available Quantity
 def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_per_unit):
     quantity_in_servings = Maximum_servings - Available_servings
-    Quantity = Available_serving/servings_per_unit
+    Quantity = quantity_in_servings/servings_per_unit
     return Quantity
     
 
@@ -267,13 +267,12 @@ def Validating_Numeric_Inputs(inputs):
 
 def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_per_unit):
     quantity_in_servings = Maximum_servings - Available_serving
-    Quantity = Available_serving/servings_per_unit
+    Quantity = quantity_in_servings/servings_per_unit
     return Quantity
 
 
 
 def Webscraping_Prices(css_selector_fo_price, store_url):
-    Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
     Chrome.get(store_url)
     price = Chrome.find_element_by_css_selector(css_selector_fo_price).text
     regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
