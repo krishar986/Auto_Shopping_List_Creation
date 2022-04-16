@@ -1,14 +1,12 @@
 from selenium import webdriver
-import datetime
 import smtplib
-import requests
+import time
 import re
-#Csv should contain Item Name, Item Quantity, No. of Units, Servings per Unit, Treshold, Preffered Shop, Max Quantity, (Item Url, and Css_Selector, Store)
-Inventory = open("Inventory_File.csv","r")
-
-Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
+from string import digits
+import datetime
+import requests
 dictionary_with_all_needed_item_values = {}
-dictionary_for_items_and_prices = {}
+Inventory = open("Inventory_File.csv","r+")
 all_lines = Inventory.readlines()
 
 
@@ -31,15 +29,15 @@ def Checking_if_Css_Selector_Exists(url,css_selector):
 
 
 def Open_Url(url):
-#As an excercise convert to while loop
-    try:
-        r = requests.get(url)
-    except requests.exceptions.MissingSchema:
-        url = input("Please enter a valid url: ")
-        url = Open_Url(url)        
-        if r.status_code == 404:
-            url = input("Please enter a valid url: ")
-            url = Open_Url(url)
+###As an excercise convert to while loop
+##    try:
+##        r = requests.get(url)
+##    except requests.exceptions.MissingSchema:
+##        url = input("Please enter a valid url: ")
+##        url = Open_Url(url)        
+##        if r.status_code == 404:
+##            url = input("Please enter a valid url: ")
+##            url = Open_Url(url)
         
     return url
 
@@ -48,7 +46,8 @@ def Open_Url(url):
 
 
 def Go_to_Google_Maps(input_):
-    
+    Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
+
     Chrome.get("https://www.google.com/maps/search/"+input_)
     error_message = Chrome.find_elements_by_id("pane")
     error_string = "Google Maps can't find "+input_
@@ -115,7 +114,10 @@ def Adding_Items():
             Url_Input = input("Please enter the url for this item at that store: ")
             Url_Input = Open_Url(Url_Input)
             Css_Selector_Input = input("Please enter the css_selector for this item price at that url: ")
-            line.append(Shop_Input,Url_Input,Css_Selector_Input)
+            
+            line.append(Shop_Input)
+            line.append(Url_Input)
+            line.append(Css_Selector_Input)
         else:
             yes = True
         # 3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
@@ -238,14 +240,18 @@ def Print_List():
     email.ehlo()
     email.starttls()
     email.login("tstmando@gmail.com","Mando@123")
-    for key in dictionary_with_all_needed_item_values.keys():
-        for item in dictionary_with_all_needed_item_values.values():
-            item = item.split(",")
-            line = item[0]+"\t"+key+"\t"+item[2]+"\t"+item[1]
-            list_of_lines.append(line)
+    
+    header = "ITEM NAME \t RECOMMENDED STORE \t PRICE \t RECOMMENDED QUANTITY"
+    dictionary_with_all_needed_item_values_sorted = sorted(dictionary_with_all_needed_item_values.items())
+    table = str.maketrans('', '', digits)
+    for item in dictionary_with_all_needed_item_values_sorted:
+        item_values = item[1].split(",")
+        
+        line = item_values[0]+"\t"+item[0].translate(table)+"\t"+item_values[2]+"\t"+item_values[1]
+        list_of_lines.append(line)
 
     list_of_lines = "\n".join(list_of_lines)         
-    email.sendmail("tstmando@gmail.com", "rajivsharma76@gmail.com","Subject:Grocery List For"+datetime.datetime.now().strftime("%x")+"\n"+list_of_lines)
+    email.sendmail("tstmando@gmail.com", "rajivsharma76@gmail.com","Subject:Grocery List For"+datetime.datetime.now().strftime("%x")+"\n"+header+"\n"+list_of_lines)
     email.quit()
 
     
@@ -273,6 +279,7 @@ def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_
 
 
 def Webscraping_Prices(css_selector_fo_price, store_url):
+    Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
     Chrome.get(store_url)
     price = Chrome.find_element_by_css_selector(css_selector_fo_price).text
     regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
@@ -283,25 +290,26 @@ def Webscraping_Prices(css_selector_fo_price, store_url):
 
 
 
-
+Inventory.close()
+Inventory = open("Inventory_File.csv","w+")
 
 
 
 add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'),update available servings(enter 'ua'), or print list('p'): ")
 
-while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_list=="u"or add_item_or_update_or_print_list == "p":
+while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_list=="u"or add_item_or_update_or_print_list == "p" or add_item_or_update_or_print_list == "ua":
 
     if add_item_or_update_or_print_list == "a":
         Adding_Items()
-        all_lines = "\n".join(all_lines)
-        Inventory.write(all_lines)
+        all_lines_str = "\n".join(all_lines)
+        Inventory.write(all_lines_str)
 
 
 
     elif add_item_or_update_or_print_list == "u":
         Update_Inventory_2()
-        all_lines = "\n".join(all_lines)
-        Inventory.write(all_lines)
+        all_lines_str = "\n".join(all_lines)
+        Inventory.write(all_lines_str)
 
 
 
@@ -309,7 +317,7 @@ while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_lis
     elif add_item_or_update_or_print_list == "p":
         list_of_prices = []
         dictionary_of_prices_and_stores = {}
-
+        unique_id = 0
 
         for item in all_lines:
             item = item.split(",")
@@ -324,44 +332,47 @@ while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_lis
                         url = item[url_index].split(";")
                         price = Webscraping_Prices(url[2],url[0])
                         list_of_prices.append(float(price))
-                        dictionary_of_prices_and_stores[url[1]] = price
+                        dictionary_of_prices_and_stores[price] = url[1]
                         url_index += 1
 
 
 
 
 
-                    list_of_prices.sort()
+                    updated_list_of_prices = list_of_prices.sort()
                     cheapest_price = list_of_prices[0]
-                    stores = list(dictionary_of_prices_and_stores.keys())
-                    prices = list(dictionary_of_prices_and_stores.values())
-                    price_index= prices.index(str(cheapest_price))
+                    prices = list_of_prices
+                    stores = list(dictionary_of_prices_and_stores.values())
+                    price_index= prices.index(cheapest_price)
 
                     store_with_cheapest_price = stores[price_index]
-                    available_quantity = Available_Quantity_Calculation(int(item[2]),int(item[4]),int(item[5]))
-
-                    quantity_needed = int(item[4])-available_quantity
-
-                    dictionary_with_all_needed_item_values[store_with_cheapest_price] = item[0]+","+str(quantity_needed)+","+str(cheapest_price)
+                    available_quantity_in_servings = int(item[4])-int(item[2])
                     
+
+                    quantity_needed = available_quantity_in_servings/int(item[5])
+
+                    dictionary_with_all_needed_item_values[store_with_cheapest_price+str(unique_id)] = item[0]+","+str(quantity_needed)+","+str(cheapest_price)
+                    unique_id += 1
                 elif item[index] != "n":
-                    price = Webscraping_Prices(item[8],item[6])
+                    price = Webscraping_Prices(item[8],item[7])
 
-                    available_quantity = Available_Quantity_Calculation(int(item[2]),int(item[4]),int(item[5]))
+                    available_quantity_in_servings = int(item[4])-int(item[2])
+                    quantity_needed = available_quantity_in_servings/int(item[5])
 
-                    quantity_needed = int(item[4])-available_quantity
-                    dictionary_with_all_needed_item_values[item[6]] = item[0]+","+str(quantity_needed)+","+str(price)
-
+                    dictionary_with_all_needed_item_values[item[6] + str(unique_id)] = item[0]+","+str(quantity_needed)+","+str(price)
+                    unique_id += 1
+        Print_List()
     elif add_item_or_update_or_print_list == "ua":
         for item in all_lines:
             updated_item = item.split(",")
             servings_consumed = input("Please enter how of "+updated_item[0]+" have you consumed: ")
-            updated_item[2] = int(updated_item[2]) - int(servings_consumed)
+            updated_item[2] = str(int(updated_item[2]) - int(servings_consumed))
             updated_item = ",".join(updated_item)
             all_lines[all_lines.index(item)] = updated_item
+        all_lines_str = "\n".join(all_lines)
+        Inventory.write(all_lines_str)
     add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), or print list('p'): ")
 
 
 
-Print_List()
-
+Inventory.close()
