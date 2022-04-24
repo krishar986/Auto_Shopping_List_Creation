@@ -20,6 +20,7 @@ import requests
 
 
 
+#Variables
 dictionary_with_all_needed_item_values = {}
 Inventory = open("Inventory_File.csv","r")
 all_lines = Inventory.readlines()
@@ -136,7 +137,7 @@ def Adding_Items():
     else:
         line.append(Shop_Input)
         yes = True
-    # 3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
+    #3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
         while yes == True:
             Store_Name_Input = input("Please enter the store name: ")
             Store_Name_Input = Go_to_Google_Maps(Store_Name_Input)
@@ -323,9 +324,9 @@ def Webscraping_Prices(css_selector_for_price, store_url):
 
 
 
-add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'),update available servings(enter 'ua'), or print list('p'): ")
+add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), update available servings(enter 'ua'), remove item(enter 'r'), or print list('p'): ")
 
-while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_list=="u"or add_item_or_update_or_print_list == "p" or add_item_or_update_or_print_list == "ua":
+while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_list=="u"or add_item_or_update_or_print_list == "p" or add_item_or_update_or_print_list == "ua" or add_item_or_update_or_print_list == "r":
 
     if add_item_or_update_or_print_list == "a":
         Inventory.close()
@@ -334,8 +335,7 @@ while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_lis
         all_lines_str = "\n".join(all_lines)
         Inventory.write(all_lines_str)
         Inventory.flush()
-
-
+        
     elif add_item_or_update_or_print_list == "u":
         Inventory.close()
         Inventory = open("Inventory_File.csv","w")
@@ -343,9 +343,7 @@ while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_lis
         all_lines_str = "\n".join(all_lines)
         Inventory.write(all_lines_str)
         Inventory.flush()
-
-
-
+        
     elif add_item_or_update_or_print_list == "p":
         list_of_prices = []
         dictionary_of_prices_and_stores = {}
@@ -367,33 +365,25 @@ while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_lis
                         dictionary_of_prices_and_stores[price] = url[1]
                         url_index += 1
 
-
-
-
-
                     updated_list_of_prices = list_of_prices.sort()
                     cheapest_price = list_of_prices[0]
                     prices = list_of_prices
                     stores = list(dictionary_of_prices_and_stores.values())
                     price_index= prices.index(cheapest_price)
-
                     store_with_cheapest_price = stores[price_index]
                     available_quantity_in_servings = int(item[4])-int(item[2])
-                    
-
                     quantity_needed = available_quantity_in_servings/int(item[5])
-
                     dictionary_with_all_needed_item_values[store_with_cheapest_price+str(unique_id)] = item[0]+","+str(quantity_needed)+","+str(cheapest_price)
                     unique_id += 1
+
                 elif item[index] != "n":
                     price = Webscraping_Prices(item[8],item[7])
-
                     available_quantity_in_servings = int(item[4])-int(item[2])
                     quantity_needed = available_quantity_in_servings/int(item[5])
-
                     dictionary_with_all_needed_item_values[item[6] + str(unique_id)] = item[0]+","+str(quantity_needed)+","+str(price)
                     unique_id += 1
         Print_List()
+        
     elif add_item_or_update_or_print_list == "ua":
         Inventory.close()
         Inventory = open("Inventory_File.csv","w")
@@ -406,7 +396,23 @@ while add_item_or_update_or_print_list == "a" or add_item_or_update_or_print_lis
         all_lines_str = "\n".join(all_lines)
         Inventory.write(all_lines_str)
         Inventory.flush()
-    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'),update available servings(enter 'ua'), or print list('p'): ")
+
+    elif add_item_or_update_or_print_list == "r":
+        Inventory.close()
+        Inventory = open("Inventory_File.csv","w")
+        item_name = input("Please enter the name of the item you want to remove: ")
+        all_names = []
+        for i in all_lines:
+            i = i.split(",")
+            all_names.append(i[0])
+        while item_name not in all_names:
+            item_name = input("Please enter the name of the item you want to remove: ")
+        all_lines.pop(all_names.index(item_name))
+        Updating_Inventory_2()
+        all_lines_str = "\n".join(all_lines)
+        Inventory.write(all_lines_str)
+        Inventory.flush()
+    add_item_or_update_or_print_list = input("Do you want to add items(enter 'a'), update inventory(enter 'u'), update available servings(enter 'ua'), remove item(enter 'r'), or print list('p'): ")
 
 
 
