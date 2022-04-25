@@ -7,7 +7,6 @@
 
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from prettytable import PrettyTable
 from selenium import webdriver
 import smtplib
 import time
@@ -30,6 +29,24 @@ regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
 
 
 
+def Auto_Suggest(input):
+    input = input.lower()
+    list_of_similar_words = []
+    for i in all_lines:
+        i_list = i.split(",")
+        item_name = i_list[0]
+        i_list = i_list[0].split()
+        if input in i_list[0].lower():
+            list_of_similar_words.append("'"+item_name+"'")
+    list_of_similar_words_str = " or ".join(list_of_similar_words)
+    if input in list_of_similar_words:
+        return False
+    else:
+        if len(list_of_similar_words) == 0:
+            return True
+        else:
+            print("Did you mean "+ list_of_similar_words_str+"?")
+            return True
 def Checking_if_Css_Selector_Exists(url,css_selector):
     Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
 
@@ -137,7 +154,7 @@ def Adding_Items():
     else:
         line.append(Shop_Input)
         yes = True
-    #3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
+#3 values for each store (URl,Store name, Css_selector), # of stores can vary from product to product ex: milk in 3 stores while matches are only available in one. Idea should factor all of this. 
         while yes == True:
             Store_Name_Input = input("Please enter the store name: ")
             Store_Name_Input = Go_to_Google_Maps(Store_Name_Input)
@@ -175,73 +192,71 @@ def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_
     
 
 def Updating_Inventory_2():
-    add_or_update = input("Do yo want to add items(enter 'a') to your inventory or update(enter 'u') your inventory, or if you want to change the url info then enter url: ")
-    if add_or_update == "u":
-        for i in all_lines:
-            print(i)
-        item_name = input("Please enter the name of the item you want to update: ")
-        result = None
-        for i in all_lines:
-            list_of_values = i.split(",")
-            if item_name in list_of_values[0]:
-                result = i
-        if result != None:
-            print(result)
-            index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url Information: ")
-            index_input = Validating_Numeric_Inputs(index_input)
-            index_input = int(index_input)
-            result_list = result.split(",")
-            while index_input > 8:
-                index_input = int(input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url Information: "))
-            if index_input < 8:
-                current_value_index = result_list[index_input - 1]
-                index_input = Validating_Numeric_Inputs(index_input)
-                index_input = int(index_input)
-                updated_value = input("Please enter what you want the value to be: ")
-                updated_result = result_list
-                updated_result[current_value_index] = updated_value
-            if index_input == 8:
-            #TODO:Handle urls appending and updating
-                current_value = input("Please enter the current value of the url: ")
-                while current_value not in result:
-                    current_value = input("Please enter the current value of the url: ")
-                    current_value = Open_Url(current_value)
-                new_url_value_input = input("Please enter what you want to change the url value to: ")
-                updated_result = result_list
-                current_url_index = updated_result.index(current_value)
-                updated_result[current_url_index] = new_url_value_input
-                new_css_selector_input = input("Please enter the new value of this urls css_selector: ")
-                new_css_selector_input = Checking_if_Css_Selector_Exists(new_url_value_input,new_css_selector_input)
-                updated_result[current_url_index + 1] = new_css_selector_input
-                new_store_name_input = input("Please enter the store name of the entered url: ")
-                updated_result[current_url_index - 1] = new_store_name_input
-            all_lines[all_lines.index(result)] = ",".join(updated_result)
-        else:
-            print("None")
-    elif add_or_update == "a":
-        Adding_items()
-
-    elif add_or_update == "url":
-    
-        item_exists = False
-        while item_exists == False:
-            Item_name = input("Pleae enter the name of the item you want to change the value for: ")
+    if len(all_lines) != 0:
+        add_or_update = input("Do yo want to add items(enter 'a') to your inventory or update(enter 'u') your inventory, or if you want to add url info(enter 'url'): ")
+        if add_or_update == "u":
             for i in all_lines:
-                line = i.split(",")
-                if line[0] == Item_name:
-                    item_exists = True
-                    break
-        while Item_name != "":
-            Url_Input = input("Please enter the url: ")
-            Url_Input = Open_Url(Url_Input)
-            Store_Name_Input = input("Please enter the store name: ")
-            Store_Name_Input = Go_to_Google_Maps(Store_Name_Input)
-            Css_selector_Input = input("Please enter css_selector: ")
-            Css_selector_Input = Checking_if_Css_Selector_Exists(Css_selector_Input)
-            Store_Info = ",".join([Url_Input, Store_Name_Input, Css_selector_Input])
-            line.append(Store_Info)
-            all_lines.append(line)
-            Item_name = input("Do you want to add more url information to this item, press enter if not: ")
+                print(i)
+            item_name = input("Please enter the name of the item you want to update: ")
+            result = False
+            item_name = Auto_Suggest(item_name)
+            while item_name == True:
+                item_name = input("Please enter the name of the item you want to update: ")
+                item_name = Auto_Suggest(item_name)
+            result = True
+            if result == True:
+                index_input = input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url Information: ")
+                index_input = int(Validating_Numeric_Inputs(index_input))
+                result_list = result.split(",")
+                while index_input > 8:
+                    index_input = int(input("Please enter 1 for Item name, 2 for Quantity, 3 for Servings per Unit, 4 for Max Quantity, 5 Available Servings, 6 Max Quantity, 7 for Threshold, 8 for Url Information: "))
+                if index_input < 8:
+                    current_value_index = index_input - 1
+                    updated_value = input("Please enter what you want the value to be: ")
+                    updated_result = result_list
+                    updated_result[current_value_index] = updated_value
+                if index_input == 8:
+                    current_value = input("Please enter the current value of the url: ")
+                    while current_value not in result:
+                        current_value = input("Please enter the current value of the url: ")
+                        current_value = Open_Url(current_value)
+                    new_url_value_input = input("Please enter what you want to change the url value to: ")
+                    updated_result = result_list
+                    current_url_index = updated_result.index(current_value)
+                    updated_result[current_url_index] = new_url_value_input
+                    new_css_selector_input = input("Please enter the new value of this urls css_selector: ")
+                    new_css_selector_input = Checking_if_Css_Selector_Exists(new_url_value_input,new_css_selector_input)
+                    updated_result[current_url_index + 1] = new_css_selector_input
+                    new_store_name_input = input("Please enter the store name of the entered url: ")
+                    updated_result[current_url_index - 1] = new_store_name_input
+                all_lines[all_lines.index(result)] = ",".join(updated_result)
+        elif add_or_update == "a":
+            Adding_items()
+
+        elif add_or_update == "url":
+            item_name = input("Pleae enter the name of the item you want to change the value for: ")
+            item_name = Auto_Suggest(item_name)
+            while item_name == True:
+                item_name = input("Please enter the name of the item you want to update: ")
+                item_name = Auto_Suggest(item_name)    
+                for i in all_lines:
+                    line = i.split(",")
+                    if line[0] == Item_name:
+                        item_exists = True
+                        break
+            while Item_name != "":
+                Url_Input = input("Please enter the url: ")
+                Url_Input = Open_Url(Url_Input)
+                Store_Name_Input = input("Please enter the store name: ")
+                Store_Name_Input = Go_to_Google_Maps(Store_Name_Input)
+                Css_selector_Input = input("Please enter css_selector: ")
+                Css_selector_Input = Checking_if_Css_Selector_Exists(Css_selector_Input)
+                Store_Info = ",".join([Url_Input, Store_Name_Input, Css_selector_Input])
+                line.append(Store_Info)
+                all_lines.append(line)
+                Item_name = input("Do you want to add more url information to this item, press enter if not: ")
+    else:
+        print("Inventory is empty, please add items to your Inventory before trying to update them")
 
 
 def Print_List():
@@ -278,9 +293,7 @@ def Print_List():
         list_of_lines.extend([item_values[0], item[0].translate(translation_table), item_values[2], item_values[1], dictionary_with_all_needed_item_values_sorted.index(item)])
         
     html_table = html_table+"</table>"+"</body>"+"</html>"
-                    
-                      
-##    list_of_lines = "\n".join(list_of_lines)
+
     message = MIMEMultipart()
     message.attach(MIMEText(html_table,"html"))
     table = message.as_string()
