@@ -21,9 +21,10 @@ import requests
 
 #Variables
 dictionary_with_all_needed_item_values = {}
-Inventory = open("Inventory_File.csv","r")
+Inventory = open("Inventory_File.xls","r")
 all_lines = Inventory.readlines()
 regex_to_remove_currency = re.compile(r'\d*\.\d{1,2}')
+regex_for_valid_username = re.compile(r'[A-Z,a-z,0-9,.,_,%,+,-]+@[A-Z,a-z,0-9,.,_,%,+,-]+\.[A-Z|a-z]{2,}')
 
 
 
@@ -170,7 +171,7 @@ def Adding_Items():
             if Url_Input == "y":
                 Css_Selector_Input = input("Please enter the css_selector for this item price at that url: ")
                 Css_Selector_Input = Checking_if_Css_Selector_Exists(Url_Input, Css_Selector_Input)
-            Store_Info = ";".join([Url_Input, Store_Name_Input, Css_selector_Input])
+            Store_Info = ";".join([Url_Input, Store_Name_Input, Css_Selector_Input])
             line.append(Store_Info)
             asking_for_inputs = input("Do you want to enter store info(y for yes, anything else for no): ")
             if asking_for_inputs != "y":
@@ -186,7 +187,7 @@ def Calculating_Available_Servings(amount_consumed, Quantity, servings_per_unit)
 
 
 def Available_Quantity_Calculation(Available_serving, Maximum_servings,servings_per_unit):
-    quantity_in_servings = Maximum_servings - Available_servings
+    quantity_in_servings = Maximum_servings - Available_serving
     Quantity = quantity_in_servings/servings_per_unit
     return Quantity
     
@@ -231,7 +232,7 @@ def Updating_Inventory_2():
                     updated_result[current_url_index - 1] = new_store_name_input
                 all_lines[all_lines.index(result)] = ",".join(updated_result)
         elif add_or_update == "a":
-            Adding_items()
+            Adding_Items()
 
         elif add_or_update == "url":
             item_name = input("Pleae enter the name of the item you want to change the value for: ")
@@ -260,6 +261,9 @@ def Updating_Inventory_2():
 
 
 def Print_List():
+    user_name = input("Please enter what email you want to send the Grocery List to: ")
+    while len(regex_for_valid_username.findall(user_name)) != 1:
+            user_name = input("Please enter what email you want to send the Grocery List to: ")
     html_table = """
                     <html>
                     <style>
@@ -282,9 +286,7 @@ def Print_List():
     email = smtplib.SMTP("smtp.gmail.com", 587)
     email.ehlo()
     email.starttls()
-    email.login("tstmando@gmail.com","Mando@123")
-    
-    header = ["ITEM NAME", "RECOMMENDED STORE", "PRICE", "RECOMMENDED QUANTITY", "ITEM NUMBER"]
+    email.login("tstmando@gmail.com","Mando@123")    
     dictionary_with_all_needed_item_values_sorted = sorted(dictionary_with_all_needed_item_values.items())
     translation_table = str.maketrans('', '', digits)
     for item in dictionary_with_all_needed_item_values_sorted:
@@ -297,7 +299,7 @@ def Print_List():
     message = MIMEMultipart()
     message.attach(MIMEText(html_table,"html"))
     table = message.as_string()
-    email.sendmail("tstmando@gmail.com", "rajivsharma76@gmail.com","Subject:Grocery List For "+datetime.datetime.now().strftime("%x")+"\n"+table)
+    email.sendmail("tstmando@gmail.com", user_name,"Subject:Grocery List For "+datetime.datetime.now().strftime("%x")+"\n"+table)
     email.quit()
 
 
