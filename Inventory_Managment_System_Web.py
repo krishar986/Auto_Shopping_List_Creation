@@ -4,9 +4,8 @@
 #Store, Url, Css_Selector
 
 
-
-
-
+import tornado.ioloop
+import tornado.web
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from selenium import webdriver
@@ -31,6 +30,121 @@ regex_for_valid_username = re.compile(r'[A-Z,a-z,0-9,.,_,%,+,-]+@[A-Z,a-z,0-9,.,
 
 
 
+#Webservers
+def server():
+    return tornado.web.Application([("/Loading_Page/",Loading_Page()),()])
+
+
+class Loading_Page(tornado.web.RequestHandler):
+    def get(self):
+        self.write("""<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; 
+  animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<div class="loader"></div>
+
+</body>
+</html>""")
+
+
+class Home_Page(tornado.web.RequestHandler):
+    def get(self):
+        self.write("""<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Home Page</title>
+</head>
+<body>
+	<!--The urls will be added after I load all the servers-->
+<a href="">  
+       <button>Add Items to Inventory</button>  
+</a>
+<br>
+<br>
+<br>
+<br>
+<a href="">  
+       <button>Update Items in Inventory</button>
+</a>
+<br>
+<br>
+<br>
+<br>
+<a href="">  
+       <button>Update Available Servings in your Inventory</button>
+</a>
+<br>
+<br>
+<br>
+<br>
+<a href="">  
+       <button>Print List</button>
+</a>
+</body>
+</html>""")
+
+
+class Add_Page(tornado.web.RequestHandler):
+    def get(self):
+        self.write("""<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Add Page</title>
+</head>
+<body>
+    <form action ="/Loading_Page/">
+	<!--The urls will be added after I load all the servers-->
+<label for "Item_Info">Enter the item name (please enter the full name of the item so you can exact lists when you are shopping): </label>
+<input type = "text" name = "Item_Info"><br><br>
+<label for "Item_Info">How many boxes or bags of this do you have: </label>
+<input type = "text" name = "Item_Info"><br><br>
+<label for "Item_Info>How many available servings do you have, please enter in terms of your previous answer: </label>
+<input type = "text" name = "Item_Info"><br><br>
+<label for "Item_Info>How many Servings do you have left before you start to run out: </label>
+<input type = "text" name = "Item_Info"><br><br>
+<label for "Item_Info>Please enter Max Quantity: </label>
+<input type = "text" name = "Item_Info"><br><br>
+<label for "Item_Info>Please enter how many servings are in one unit of this item: </label>
+<input type = "text" name = "Item_Info"><br><br>
+<label for "Item_Info>Please enter which shop you prefer to buy this item(enter n if there is none): </label>
+<input type = "text" name = "Item_Info">
+<input type = "submit">
+</body>
+</html>""")
+
+
+class Update_Page(tornado.web.RequestHandler):
+    def get(self):
+        self.write("""""")
+#Necesary Function
 def Auto_Suggest(input):
     input = input.lower()
     list_of_similar_words = []
@@ -81,7 +195,6 @@ def Open_Url(url):
         url = Open_Url(url)
     return url
 
-
 def Go_to_Google_Maps(input_):
     Chrome = webdriver.Chrome("/Users/krist/Desktop/Python/Course with Rahul Bahya/Inventory Management System Exercises/chromedriver")
 
@@ -94,28 +207,12 @@ def Go_to_Google_Maps(input_):
         input_ = input("Please enter a store that exists: ")
         input_ = Go_to_Google_Maps(input_)
         return input_
-    
-
-def searching_for_item(list_inputs):
-   for i in Inventory:
-        list_for_item_values=i.split(",")
-        if list_for_item_values[0] == item_name:
-            is_repeats = True
-            for value in list_inputs:
-                if value in list_for_item_values:
-                    return 1
-                else:
-                    is_repeats = False
-                    print("Please go to Update to change your inventory: ")
-                    return 2
-            if is_repeats == True:
-                print("Item already exists")
-                return 3
 
 
 def Adding_Items():
     New_Item_Input = input("Enter the item name (please enter the full name of the item so you can exact lists when you are shopping): ")
     New_Item_Input = New_Item_Input.replace(",","_")
+    
     Quantity_Input = input("How many boxes or bags of this do you have: ")
     Quantity_Input = Validating_Numeric_Inputs(Quantity_Input)
     
@@ -332,6 +429,7 @@ def Webscraping_Prices(css_selector_for_price, store_url):
     y = regex_to_remove_currency.search(price)
     Chrome.close()
     return y.group()
+    
 
 
 
